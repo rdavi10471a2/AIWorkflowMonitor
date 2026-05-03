@@ -1,0 +1,14 @@
+Monitor/bin/
+Monitor/obj/
+Monitor/Docs/Samples/**/bin/
+Monitor/Docs/Samples/**/obj/
+Monitor/Working/
+Monitor/History/
+Monitor/Archive/
+Monitor/Telemetry/
+AIWorkflowMonitor_Gist_ForReview.zip
+*.nupkg
+*.snupkg
+.vs/
+*.user
+*.suo
