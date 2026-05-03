@@ -399,7 +399,7 @@ internal static partial class AIWorkflowRunner
             return result;
         }
 
-        var observedRootName = new DirectoryInfo(observedRootFullPath).Name;
+        var observedRootKey = BuildObservedRootKey(observedRootFullPath);
         var currentWorkingFullPath = Path.GetFullPath(currentWorkingFilePath);
         foreach (var overlayPath in EnumerateWorkingOverlaySourceFiles(workingOverlayRoot))
         {
@@ -422,7 +422,7 @@ internal static partial class AIWorkflowRunner
             {
                 var refreshStatePath = Path.Combine(
                     stateDir,
-                    observedRootName,
+                    observedRootKey,
                     relative.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar) + ".refresh.state");
                 if (!IsRefreshStateCurrent(refreshStatePath, observedPath))
                 {

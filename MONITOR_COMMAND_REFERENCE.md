@@ -121,7 +121,7 @@ Refresh it without changing `appsettings.json`:
 dotnet run --project ".\Monitor\AIWorkflowMonitor.csproj" -- ".\Monitor\Docs\Samples\TinyConsoleWatchedProject\Program.cs" --observed-root ".\Monitor\Docs\Samples\TinyConsoleWatchedProject" --refresh-only --no-prune
 ```
 
-To smoke-test overlay validation, refresh both sample `.cs` files, edit both matching files under `Monitor\Working\TinyConsoleWatchedProject`, then compare one file. Roslyn should validate using the sibling Working file as an overlay while the diff review stays serial.
+To smoke-test overlay validation, refresh both sample `.cs` files, edit both matching files under `Monitor\Working\<observed-root-key>\TinyConsoleWatchedProject`, then compare one file. The observed-root key includes the watched folder name plus a short path hash so same-named watched roots do not share state. Roslyn should validate using the sibling Working file as an overlay while the diff review stays serial.
 
 ## Diff Inputs
 

@@ -15,7 +15,22 @@ internal static partial class AIWorkflowRunner
             current = current.Parent;
         }
 
-        return Directory.GetCurrentDirectory();
+        return TrimDirectorySeparator(Path.GetFullPath(AppContext.BaseDirectory));
+    }
+
+    private static string BuildObservedRootKey(string observedRoot)
+    {
+        var fullPath = TrimDirectorySeparator(Path.GetFullPath(observedRoot));
+        var leafName = new DirectoryInfo(fullPath).Name;
+        if (string.IsNullOrWhiteSpace(leafName))
+        {
+            leafName = "ObservedRoot";
+        }
+
+        var normalized = fullPath.ToUpperInvariant();
+        var hashBytes = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(normalized));
+        var hash = Convert.ToHexString(hashBytes)[..12].ToLowerInvariant();
+        return $"{SanitizeForFileName(leafName)}_{hash}";
     }
 
     private static bool IsPathOutside(string relativePath)
