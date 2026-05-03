@@ -84,6 +84,7 @@ Helpful review:
 - find places where generated state could leak into the watched project
 - find places where diff orientation, ledger correlation, or Roslyn validation could mislead the human
 - suggest small hardening changes that preserve the local proposal-gate model
+- prefer small, practical findings over broad platform redesign suggestions
 
 Less helpful review:
 
