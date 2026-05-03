@@ -40,7 +40,7 @@ Monitor\Working\History\Telemetry
 6. Tell Codex to initialize the monitor for that watched root.
 7. Put Git on the watched project.
 
-Initialization should update `Monitor\appsettings.json`, install `AI\AIAttributes.cs` into the watched project, build `Monitor\AIWorkflowMonitor.csproj`, and run one `--refresh-only` pass.
+Initialization should create or update local `Monitor\appsettings.json` from tracked `Monitor\appsettings.template.json`, install `AI\AIAttributes.cs` into the watched project, build `Monitor\AIWorkflowMonitor.csproj`, and run one `--refresh-only` pass. Local `appsettings.json` is ignored by Git so each monitor copy can keep its own watched root.
 
 The watched root should be a sibling project, not the `Monitor` folder and not `Monitor\Working`. The bundled tiny sample under `Monitor\Docs\Samples` is the intentional exception for smoke tests.
 

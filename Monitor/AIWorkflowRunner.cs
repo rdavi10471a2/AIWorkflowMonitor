@@ -472,14 +472,14 @@ internal static partial class AIWorkflowRunner
         var settings = _configuration?.GetSection("WorkflowSettings");
         if (settings is null)
         {
-            Console.Error.WriteLine("ERROR: Missing WorkflowSettings section in appsettings.json.");
+            Console.Error.WriteLine("ERROR: Missing WorkflowSettings section. Ensure appsettings.template.json is present, run initialization, or pass --observed-root <path>.");
             return false;
         }
 
         if (string.IsNullOrWhiteSpace(explicitObservedRoot)
             && string.IsNullOrWhiteSpace(settings["ObservedRoot"]))
         {
-            Console.Error.WriteLine("ERROR: ObservedRoot is not configured. Set WorkflowSettings:ObservedRoot in appsettings.json or pass --observed-root <path>.");
+            Console.Error.WriteLine("ERROR: ObservedRoot is not configured. Run initialization to create local appsettings.json or pass --observed-root <path>.");
             return false;
         }
 

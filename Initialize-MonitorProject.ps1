@@ -15,6 +15,7 @@ $WorkspaceRoot = $PSScriptRoot
 $MonitorRoot = Join-Path $WorkspaceRoot "Monitor"
 $ProjectPath = Join-Path $MonitorRoot "AIWorkflowMonitor.csproj"
 $SettingsPath = Join-Path $MonitorRoot "appsettings.json"
+$SettingsTemplatePath = Join-Path $MonitorRoot "appsettings.template.json"
 $AIAttributesSamplePath = Join-Path $MonitorRoot "Docs\Samples\AIAttributes.cs"
 
 if (-not (Test-Path -LiteralPath $MonitorRoot -PathType Container)) {
@@ -23,6 +24,15 @@ if (-not (Test-Path -LiteralPath $MonitorRoot -PathType Container)) {
 
 if (-not (Test-Path -LiteralPath $ProjectPath -PathType Leaf)) {
     throw "Monitor project not found: $ProjectPath"
+}
+
+if (-not (Test-Path -LiteralPath $SettingsPath -PathType Leaf)) {
+    if (-not (Test-Path -LiteralPath $SettingsTemplatePath -PathType Leaf)) {
+        throw "Monitor settings template not found: $SettingsTemplatePath"
+    }
+
+    Copy-Item -LiteralPath $SettingsTemplatePath -Destination $SettingsPath
+    Write-Host "Created local settings file from template: $SettingsPath"
 }
 
 function Get-RelativePathFromRoot {

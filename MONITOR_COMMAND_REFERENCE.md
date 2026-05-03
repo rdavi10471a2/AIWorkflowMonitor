@@ -62,7 +62,7 @@ Open telemetry for this run:
 dotnet run --project ".\Monitor\AIWorkflowMonitor.csproj" -- "C:\VSCodeProjects\MonitorProject\MyWatchedProject\Path\To\File.cs" --telemetry-window
 ```
 
-Telemetry is independent of the compare tool. A telemetry window can open even when no WinMerge/Beyond Compare/VS Code window opens, especially when there is no diff, when a run only refreshes or validates, or when telemetry auto-open is enabled in `appsettings.json`.
+Telemetry is independent of the compare tool. A telemetry window can open even when no WinMerge/Beyond Compare/VS Code window opens, especially when there is no diff, when a run only refreshes or validates, or when telemetry auto-open is enabled in local `appsettings.json`.
 
 The AI-readable JSON logs are intentionally capped. `_runs.json` keeps the most recent 500 run-detail entries. `_telemetry.json` keeps the most recent 50 telemetry runs with up to 300 retained lines per run. The complete long-term record is Git plus the monitor's per-file ledgers/snapshots/archives, not unbounded JSON growth.
 
@@ -115,7 +115,7 @@ A disposable console project is included at:
 Monitor\Docs\Samples\TinyConsoleWatchedProject
 ```
 
-Refresh it without changing `appsettings.json`:
+Refresh it without changing local `appsettings.json`:
 
 ```powershell
 dotnet run --project ".\Monitor\AIWorkflowMonitor.csproj" -- ".\Monitor\Docs\Samples\TinyConsoleWatchedProject\Program.cs" --observed-root ".\Monitor\Docs\Samples\TinyConsoleWatchedProject" --refresh-only --no-prune

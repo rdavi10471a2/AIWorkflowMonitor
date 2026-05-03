@@ -33,7 +33,7 @@ internal static partial class AIWorkflowRunner
         }
         else
         {
-            Console.WriteLine("  configured-observed-root: not configured in template appsettings.json");
+            Console.WriteLine("  configured-observed-root: not configured in local appsettings.json");
         }
         Console.WriteLine();
 

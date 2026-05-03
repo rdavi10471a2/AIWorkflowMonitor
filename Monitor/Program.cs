@@ -10,6 +10,7 @@ internal static class Program
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.template.json", optional: true, reloadOnChange: false)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
                 .Build();
 

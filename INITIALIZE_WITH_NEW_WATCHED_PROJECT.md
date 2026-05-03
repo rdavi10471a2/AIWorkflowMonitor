@@ -59,7 +59,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 Read the markdown files in this workspace and initialize the monitor workspace at C:\VSCodeProjects\MonitorProject for this watched project:
 C:\VSCodeProjects\MonitorProject\MyWatchedProject
 
-Update Monitor\appsettings.json ObservedRoot to that watched project root. Keep the monitor and watched project as sibling folders. Build the monitor. Then run a refresh-only monitor pass for this source file:
+Create or update local Monitor\appsettings.json from Monitor\appsettings.template.json, then set ObservedRoot to that watched project root. Keep the monitor and watched project as sibling folders. Build the monitor. Then run a refresh-only monitor pass for this source file:
 C:\VSCodeProjects\MonitorProject\MyWatchedProject\Path\To\File.cs
 
 Do not move generated monitor state into the watched project.
@@ -74,7 +74,7 @@ Install the standard AI attributes into the watched project if they are missing.
 For a legacy project that already has an older AI helper file or old AI comments, replace that instruction with:
 
 ```text
-This watched project already has legacy AI helper files/comments from a prior monitor workflow. Do not replace, rename, clean up, or mass-edit them during initialization. Preserve legacy comments. If the current AI workflow attributes are missing, add only the supplemental current attribute definitions needed for future FileVersion/AIFileContext use. Initialize Monitor\appsettings.json, build the monitor, and run the first refresh-only pass.
+This watched project already has legacy AI helper files/comments from a prior monitor workflow. Do not replace, rename, clean up, or mass-edit them during initialization. Preserve legacy comments. If the current AI workflow attributes are missing, add only the supplemental current attribute definitions needed for future FileVersion/AIFileContext use. Initialize local Monitor\appsettings.json from the tracked template, build the monitor, and run the first refresh-only pass.
 ```
 
 ## Codex Checklist
@@ -85,7 +85,7 @@ Codex should do this:
 2. Confirm the watched project folder exists.
 3. Find a suitable `.cs` file if you did not provide one.
 4. Install `AI\AIAttributes.cs` into the watched project if it is missing, using `Monitor\Docs\Samples\AIAttributes.cs` as the template. If a legacy `AI\AIAttributes.cs` already exists, preserve it and add only missing current attributes in `AI\AIWorkflowCurrentAttributes.cs`.
-5. Patch `Monitor\appsettings.json`.
+5. Create or patch local `Monitor\appsettings.json`.
 6. Run `dotnet build`.
 7. Run `dotnet run --project ... -- <source-file> --refresh-only`.
 8. Report the exact command used and whether the refresh succeeded.
@@ -94,7 +94,7 @@ Codex should not initialize if the watched project is nested under `Monitor`. Mo
 
 ## Manual Equivalent
 
-Edit `appsettings.json`:
+Edit local `appsettings.json`:
 
 ```json
 {
@@ -108,6 +108,8 @@ Edit `appsettings.json`:
   }
 }
 ```
+
+`Monitor\appsettings.template.json` is tracked by Git. `Monitor\appsettings.json` is local generated configuration and is ignored so pulls from the base repo do not overwrite each monitor copy's watched root.
 
 Then build:
 

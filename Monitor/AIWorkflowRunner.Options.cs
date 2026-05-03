@@ -200,7 +200,7 @@ internal static partial class AIWorkflowRunner
         var configuredRoot = _configuration?.GetSection("WorkflowSettings")?["ObservedRoot"];
         if (string.IsNullOrWhiteSpace(configuredRoot))
         {
-            Console.Error.WriteLine("ERROR: ObservedRoot not found in appsettings.json (WorkflowSettings:ObservedRoot). Please set this value in your configuration file.");
+            Console.Error.WriteLine("ERROR: ObservedRoot not found in local appsettings.json (WorkflowSettings:ObservedRoot). Run initialization or pass --observed-root <path>.");
             throw new InvalidOperationException("ObservedRoot configuration is required.");
         }
 

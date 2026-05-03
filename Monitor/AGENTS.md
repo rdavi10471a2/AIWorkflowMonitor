@@ -9,7 +9,7 @@ The monitor's own partial-file layout is intentional. See `Docs\MonitorImplement
 When initializing this monitor for a new watched project:
 
 1. Locate the watched project root. Prefer the folder containing the watched `.sln`, `.csproj`, or source tree.
-2. Update `appsettings.json` so `WorkflowSettings:ObservedRoot` is the absolute path to that watched project root.
+2. Create local `appsettings.json` from `appsettings.template.json` if needed, then update `WorkflowSettings:ObservedRoot` to the absolute path to that watched project root.
 3. Ensure the watched project contains `AI\AIAttributes.cs` with the watched project namespace.
 4. Keep generated monitor state inside this monitor folder. Do not move `Working`, `History`, `Archive`, or telemetry folders into the watched project.
 5. Build the monitor with `dotnet build`.
