@@ -18,7 +18,7 @@ Recommended layout:
 C:\VSCodeProjects\MonitorProject\
   Monitor\
     AIWorkflowMonitor.csproj
-    appsettings.json
+    appsettings.template.json
     AGENTS.md
   MyWatchedProject\
     YourProject.sln
@@ -56,7 +56,7 @@ Documentation is generated after the feature stabilizes, not during active churn
 .\Initialize-MonitorProject.ps1 -WatchedRoot "C:\VSCodeProjects\MonitorProject\MyWatchedProject" -SourceFile "C:\VSCodeProjects\MonitorProject\MyWatchedProject\Path\To\File.cs"
 ```
 
-The script updates `Monitor\appsettings.json`, builds `Monitor\AIWorkflowMonitor.csproj`, and runs the first `--refresh-only` pass.
+The script creates or updates local `Monitor\appsettings.json` from tracked `Monitor\appsettings.template.json`, builds `Monitor\AIWorkflowMonitor.csproj`, and runs the first `--refresh-only` pass. The local `appsettings.json` is intentionally ignored by Git so each copied monitor can keep its own watched root without fighting future pulls.
 
 If you want the script to pick the first `.cs` file it can find:
 
@@ -206,7 +206,7 @@ Compare only with a compact monitor-owned ledger summary:
 dotnet run --project ".\Monitor\AIWorkflowMonitor.csproj" -- "C:\VSCodeProjects\MonitorProject\MyWatchedProject\Path\To\File.cs" --compare-only --ledger-summary "Changed save validation routing and kept source comments minimal."
 ```
 
-Override the watched root without editing `appsettings.json`:
+Override the watched root without editing local `appsettings.json`:
 
 ```powershell
 dotnet run --project ".\Monitor\AIWorkflowMonitor.csproj" -- "C:\Path\To\Project\File.cs" --observed-root "C:\Path\To\Project"
@@ -220,7 +220,7 @@ dotnet run --project ".\Monitor\AIWorkflowMonitor.csproj" -- ".\Monitor\Docs\Sam
 
 ## Diff Tool
 
-`appsettings.json` supports these `DiffTool` values:
+Local `Monitor\appsettings.json` supports these `DiffTool` values:
 
 - `WinMerge`
 - `BeyondCompare`

@@ -100,7 +100,7 @@ internal static partial class AIWorkflowRunner
         {
             return (int)AIWorkflowRunnerExitCode.SourcePathError;
         }
-        var observedRootName = new DirectoryInfo(observedRoot).Name;
+        var observedRootKey = BuildObservedRootKey(observedRoot);
         var relativeSourcePath = Path.GetRelativePath(observedRoot, originalFilePath);
         if (IsPathOutside(relativeSourcePath))
         {
@@ -122,6 +122,7 @@ internal static partial class AIWorkflowRunner
             ["source_file"] = originalFilePath,
             ["app_root"] = appRoot,
             ["observed_root"] = observedRoot,
+            ["observed_root_key"] = observedRootKey,
             ["working_dir"] = workingDir,
             ["history_dir"] = historyDir,
             ["refresh_only"] = refreshOnly.ToString(),
@@ -136,9 +137,10 @@ internal static partial class AIWorkflowRunner
         });
         Console.WriteLine($"Monitor root: {appRoot}");
         Console.WriteLine($"Observed root: {observedRoot}");
+        Console.WriteLine($"Observed root key: {observedRootKey}");
         Console.WriteLine($"Working dir: {workingDir}");
 
-        var workingRelativePath = Path.Combine(observedRootName, relativeSourcePath);
+        var workingRelativePath = Path.Combine(observedRootKey, relativeSourcePath);
         var workingFilePath = Path.Combine(workingDir, workingRelativePath);
         var refreshStatePath = Path.Combine(stateDir, workingRelativePath + ".refresh.state");
 
@@ -316,10 +318,11 @@ internal static partial class AIWorkflowRunner
 
         var baseName = Path.GetFileNameWithoutExtension(workingFilePath);
         var extension = Path.GetExtension(workingFilePath);
-        var stamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        var stamp = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+        var snapshotRunId = SanitizeForFileName(runId);
         var historyRelativeDir = Path.GetDirectoryName(workingRelativePath) ?? string.Empty;
         var historyTargetDir = Path.Combine(historyDir, historyRelativeDir);
-        var proposedFilePath = Path.Combine(historyTargetDir, $"{baseName}_{stamp}{extension}");
+        var proposedFilePath = Path.Combine(historyTargetDir, $"{baseName}_{stamp}_{snapshotRunId}{extension}");
 
         Directory.CreateDirectory(historyDir);
         Directory.CreateDirectory(historyTargetDir);
@@ -469,14 +472,14 @@ internal static partial class AIWorkflowRunner
         var settings = _configuration?.GetSection("WorkflowSettings");
         if (settings is null)
         {
-            Console.Error.WriteLine("ERROR: Missing WorkflowSettings section in appsettings.json.");
+            Console.Error.WriteLine("ERROR: Missing WorkflowSettings section. Ensure appsettings.template.json is present, run initialization, or pass --observed-root <path>.");
             return false;
         }
 
         if (string.IsNullOrWhiteSpace(explicitObservedRoot)
             && string.IsNullOrWhiteSpace(settings["ObservedRoot"]))
         {
-            Console.Error.WriteLine("ERROR: ObservedRoot is not configured. Set WorkflowSettings:ObservedRoot in appsettings.json or pass --observed-root <path>.");
+            Console.Error.WriteLine("ERROR: ObservedRoot is not configured. Run initialization to create local appsettings.json or pass --observed-root <path>.");
             return false;
         }
 

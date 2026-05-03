@@ -16,8 +16,8 @@ Use `Monitor` for the monitoring tool. Use a sibling folder for the project bein
 
 When initializing the monitor for a watched project:
 
-1. Update `Monitor\appsettings.json`.
-2. Set `WorkflowSettings:ObservedRoot` to the absolute watched project path.
+1. Create local `Monitor\appsettings.json` from tracked `Monitor\appsettings.template.json` if needed.
+2. Set local `WorkflowSettings:ObservedRoot` to the absolute watched project path.
 3. Ensure the watched project contains `AI\AIAttributes.cs` with the watched project namespace.
 4. Build `Monitor\AIWorkflowMonitor.csproj`.
 5. Run a `--refresh-only` pass for a source file inside the watched project.

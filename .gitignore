@@ -6,6 +6,7 @@ Monitor/Working/
 Monitor/History/
 Monitor/Archive/
 Monitor/Telemetry/
+Monitor/appsettings.json
 AIWorkflowMonitor_Gist_ForReview.zip
 *.nupkg
 *.snupkg

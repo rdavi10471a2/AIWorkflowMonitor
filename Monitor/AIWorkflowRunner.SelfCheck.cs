@@ -17,6 +17,10 @@ internal static partial class AIWorkflowRunner
         Console.WriteLine($"  working_dir: {workingDir}");
         Console.WriteLine($"  history_dir: {historyDir}");
         Console.WriteLine($"  configured_observed_root: {FormatOptionalPath(configuredObservedRoot)}");
+        if (!string.IsNullOrWhiteSpace(configuredObservedRoot))
+        {
+            Console.WriteLine($"  configured_observed_root_key: {BuildObservedRootKey(configuredObservedRoot)}");
+        }
         Console.WriteLine();
 
         Console.WriteLine("Observed-root guardrails:");
@@ -29,7 +33,7 @@ internal static partial class AIWorkflowRunner
         }
         else
         {
-            Console.WriteLine("  configured-observed-root: not configured in template appsettings.json");
+            Console.WriteLine("  configured-observed-root: not configured in local appsettings.json");
         }
         Console.WriteLine();
 
