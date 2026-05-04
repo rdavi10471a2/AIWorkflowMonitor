@@ -104,7 +104,7 @@ The old source-map implementation has been removed from the active monitor and a
 
 Roslyn overlay validation is an early warning system, not a complete replacement for the watched project's real build. After merging a proposal, build/run/QA the actual project.
 
-Telemetry is separate from the diff tool. If telemetry auto-open is enabled, the monitor may open a live log window even when WinMerge/Beyond Compare/VS Code does not open because there was no file diff to review. Treat that window as the run transcript, not as a compare window.
+Telemetry is separate from the diff tool. If telemetry auto-open is enabled, the monitor may open a live log window even when WinMerge or Beyond Compare does not open because there was no file diff to review. Treat that window as the run transcript, not as a compare window.
 
 The JSON run and telemetry files are capped so they stay useful for AI inspection. `_runs.json` keeps the most recent 500 entries. `_telemetry.json` keeps the most recent 50 runs with up to 300 retained lines per run. They are short-term context, not durable project history.
 
@@ -228,7 +228,6 @@ Local `Monitor\appsettings.json` supports these `DiffTool` values:
 
 - `WinMerge`
 - `BeyondCompare`
-- `VSCode`
 
-If your tool is not installed in a default location, pass its executable path as the second positional argument.
+WinMerge is the default and recommended diff tool. If your tool is not installed in a default location, pass its executable path as the second positional argument.
 

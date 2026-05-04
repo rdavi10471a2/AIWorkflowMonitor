@@ -77,7 +77,7 @@ Refresh creates the editable proposal copy. Codex normally edits the Working fil
 --compare-only or refresh-and-compare
   -> verify Working refresh state is current
   -> create immutable proposed snapshot
-  -> run Roslyn preflight with sparse Working overlay
+  -> run Roslyn preflight with sparse Working overlay for .cs files
   -> write run details and telemetry
   -> append optional per-file ledger entry
   -> launch diff tool against proposed snapshot and source
@@ -116,6 +116,8 @@ Key file:
 - `AIWorkflowRunner.ContractGuard.cs`
 
 This is a fast preflight, not a full MSBuild project build. The watched project's real build and QA run remain the final truth after merge.
+
+Razor component files such as `.razor` are not sent through this compilation gate. The monitor still snapshots, ledgers, and launches the diff for Razor reviews, but the real watched-project build is the authority for markup/component compilation.
 
 ## Ledger And History Flow
 
