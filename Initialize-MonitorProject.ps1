@@ -199,7 +199,8 @@ function Ensure-CurrentAIAttributes {
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("using System;")
     $lines.Add("")
-    $lines.Add("namespace $attributeNamespace;")
+    $lines.Add("namespace $attributeNamespace")
+    $lines.Add("{")
     $lines.Add("")
     $lines.Add("// Supplemental current monitor attributes for legacy watched projects.")
     $lines.Add("// This file is generated only when older AI helper files are present but missing current workflow attributes.")
@@ -340,6 +341,9 @@ function Ensure-CurrentAIAttributes {
         $lines.Add("    }")
         $lines.Add("}")
     }
+
+    $lines.Add("")
+    $lines.Add("}")
 
     Set-Content -LiteralPath $supplementPath -Value ($lines -join [Environment]::NewLine) -Encoding UTF8
     Write-Host "Installed supplemental current AI attributes: $supplementPath"
