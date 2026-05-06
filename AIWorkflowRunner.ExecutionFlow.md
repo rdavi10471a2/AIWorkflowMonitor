@@ -76,8 +76,8 @@ Refresh creates the editable proposal copy. Codex normally edits the Working fil
 ```text
 --compare-only or refresh-and-compare
   -> verify Working refresh state is current
-  -> create immutable proposed snapshot
   -> run Roslyn preflight with sparse Working overlay for .cs files
+  -> create immutable proposed snapshot
   -> write run details and telemetry
   -> append optional per-file ledger entry
   -> launch diff tool against proposed snapshot and source
