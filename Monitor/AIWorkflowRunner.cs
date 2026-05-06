@@ -74,7 +74,7 @@ internal static partial class AIWorkflowRunner
             return (int)AIWorkflowRunnerExitCode.UsageOrConfigError;
         }
 
-        if (!ValidateRuntimeConfiguration(explicitObservedRoot))
+        if (!ValidateRuntimeConfiguration(explicitObservedRoot, explicitBeyondComparePath))
         {
             return (int)AIWorkflowRunnerExitCode.UsageOrConfigError;
         }
@@ -479,7 +479,7 @@ internal static partial class AIWorkflowRunner
         }
     }
 
-    private static bool ValidateRuntimeConfiguration(string? explicitObservedRoot)
+    private static bool ValidateRuntimeConfiguration(string? explicitObservedRoot, string? explicitDiffToolPath)
     {
         var settings = _configuration?.GetSection("WorkflowSettings");
         if (settings is null)
@@ -500,6 +500,12 @@ internal static partial class AIWorkflowRunner
             && !string.Equals(diffTool, "WinMerge", StringComparison.OrdinalIgnoreCase)
             && !string.Equals(diffTool, "BeyondCompare", StringComparison.OrdinalIgnoreCase))
         {
+            if (!string.IsNullOrWhiteSpace(explicitDiffToolPath))
+            {
+                Console.WriteLine($"WARNING: Ignoring unsupported configured DiffTool '{diffTool}' because an explicit diff executable path was supplied.");
+                return true;
+            }
+
             Console.Error.WriteLine($"ERROR: Unknown DiffTool '{diffTool}'. Supported values: WinMerge, BeyondCompare.");
             return false;
         }

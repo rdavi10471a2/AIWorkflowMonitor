@@ -1,6 +1,7 @@
 using System;
 
-namespace TinyConsoleWatchedProject.AI;
+namespace TinyConsoleWatchedProject.AI
+{
 
 /// <summary>
 /// Describes the durable purpose, responsibilities, and local gotchas for a source file.
@@ -54,4 +55,5 @@ public sealed class AIChangeAttribute : Attribute
         Version = version;
         Summary = summary;
     }
+}
 }

@@ -1,6 +1,7 @@
 using System;
 
-namespace ReplaceWithWatchedProjectNamespace.AI;
+namespace ReplaceWithWatchedProjectNamespace.AI
+{
 
 /// <summary>
 /// Legacy status enum retained for compatibility with older watched projects.
@@ -145,4 +146,5 @@ public sealed class UserHistoryAttribute : Attribute
         ChangeLog = changeLog;
         Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
     }
+}
 }
