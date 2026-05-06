@@ -2,6 +2,8 @@
 
 This folder is a reusable AI workflow monitor starter. Copy this whole folder, rename the copy to your project workspace name, then initialize it against one watched project.
 
+This is not a passive monitor. It is an active local proposal gate that controls how AI-generated file changes are staged, preflighted, reviewed, and accepted.
+
 This is intentionally a solo local tool. It is a personal proposal gate for Codex-generated work on one machine: refresh source into `Working`, let Codex propose edits, preflight the proposal, review one diff at a time, then build and QA the real watched project. It is not meant to replace Git, CI, pull requests, or a team review process. Those belong downstream after the local proposal cycle produces tested source changes.
 
 The standard workflow is:
@@ -33,7 +35,9 @@ For the monitor's own implementation layout, see `Monitor\Docs\MonitorImplementa
 
 Required watched-project convention:
 
+- [QUICK_START.md](QUICK_START.md) is the shortest first-run path for a copied monitor base.
 - [START_HERE_WORKFLOW_SUMMARY.md](START_HERE_WORKFLOW_SUMMARY.md) is the one-page operating model for this workspace.
+- [AIWorkflowRunner.ExecutionFlow.md](AIWorkflowRunner.ExecutionFlow.md) shows the runtime flow through the partial `AIWorkflowRunner.*.cs` implementation files.
 - [SELF_CHECK.md](SELF_CHECK.md) has quick commands for verifying root guardrails, snapshot diff semantics, and retention constants.
 - [AI_REVIEW_BRIEF_SOLO_MONITOR.md](AI_REVIEW_BRIEF_SOLO_MONITOR.md) is the compact brief to feed another AI session when asking it to review the monitor concept or current branch.
 - [AI_ATTRIBUTES_EXAMPLE.md](AI_ATTRIBUTES_EXAMPLE.md) explains the lightweight AI attributes that initialization installs into the watched project. They are for durable file context, not routine edit logs.
@@ -100,7 +104,7 @@ The old source-map implementation has been removed from the active monitor and a
 
 Roslyn overlay validation is an early warning system, not a complete replacement for the watched project's real build. After merging a proposal, build/run/QA the actual project.
 
-Telemetry is separate from the diff tool. If telemetry auto-open is enabled, the monitor may open a live log window even when WinMerge/Beyond Compare/VS Code does not open because there was no file diff to review. Treat that window as the run transcript, not as a compare window.
+Telemetry is separate from the diff tool. If telemetry auto-open is enabled, the monitor may open a live log window even when WinMerge or Beyond Compare does not open because there was no file diff to review. Treat that window as the run transcript, not as a compare window.
 
 The JSON run and telemetry files are capped so they stay useful for AI inspection. `_runs.json` keeps the most recent 500 entries. `_telemetry.json` keeps the most recent 50 runs with up to 300 retained lines per run. They are short-term context, not durable project history.
 
@@ -224,7 +228,6 @@ Local `Monitor\appsettings.json` supports these `DiffTool` values:
 
 - `WinMerge`
 - `BeyondCompare`
-- `VSCode`
 
-If your tool is not installed in a default location, pass its executable path as the second positional argument.
+WinMerge is the default and recommended diff tool. If your tool is not installed in a default location, pass its executable path as the second positional argument.
 

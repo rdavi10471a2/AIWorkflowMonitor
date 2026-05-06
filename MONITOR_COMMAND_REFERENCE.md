@@ -62,7 +62,7 @@ Open telemetry for this run:
 dotnet run --project ".\Monitor\AIWorkflowMonitor.csproj" -- "C:\VSCodeProjects\MonitorProject\MyWatchedProject\Path\To\File.cs" --telemetry-window
 ```
 
-Telemetry is independent of the compare tool. A telemetry window can open even when no WinMerge/Beyond Compare/VS Code window opens, especially when there is no diff, when a run only refreshes or validates, or when telemetry auto-open is enabled in local `appsettings.json`.
+Telemetry is independent of the compare tool. A telemetry window can open even when no WinMerge or Beyond Compare window opens, especially when there is no diff, when a run only refreshes or validates, or when telemetry auto-open is enabled in local `appsettings.json`.
 
 The AI-readable JSON logs are intentionally capped. `_runs.json` keeps the most recent 500 run-detail entries. `_telemetry.json` keeps the most recent 50 telemetry runs with up to 300 retained lines per run. The complete long-term record is Git plus the monitor's per-file ledgers/snapshots/archives, not unbounded JSON growth.
 
@@ -98,6 +98,8 @@ Before compare, Roslyn validates the selected Working `.cs` file with a sparse o
 This supports the normal multi-file Codex cycle: edit every needed Working file first, then review the generated diffs serially.
 
 Roslyn validation is a fast preflight, not a full MSBuild/project-graph build. It can catch obvious proposed-code issues before compare, but the watched project's real build/debug/QA cycle remains the final truth after merge.
+
+Roslyn validation only runs for standalone `.cs` source files. Razor files such as `.razor` are skipped by the compilation gate because parsing component markup as a C# syntax tree creates false failures. Review Razor files through the normal snapshot diff and then build/run the watched project.
 
 The monitor also warns, without blocking, when the selected Working file appears to add many comment lines. Routine edit history should go to `--ledger-summary` and component maps, not source comments.
 

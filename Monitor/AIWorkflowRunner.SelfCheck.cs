@@ -40,7 +40,6 @@ internal static partial class AIWorkflowRunner
         Console.WriteLine("Diff tool resolution:");
         Console.WriteLine($"  configured_diff_tool: {_configuration?.GetSection("WorkflowSettings:DiffTool").Value ?? "WinMerge"}");
         Console.WriteLine($"  winmerge: {FormatOptionalPath(ResolveWinMergePath())}");
-        Console.WriteLine($"  vscode: {FormatOptionalPath(ResolveVSCodePath())}");
         Console.WriteLine($"  beyond_compare: {FormatOptionalPath(ResolveBeyondComparePath())}");
         Console.WriteLine();
 

@@ -208,81 +208,93 @@ internal static partial class AIWorkflowRunner
             return (int)AIWorkflowRunnerExitCode.Success;
         }
 
-        // Enforce Roslyn semantic/compile validation before snapshot/diff.
-        var validation = ValidateWorkingFileContracts(
-            workingFilePath,
-            relativeSourcePath,
-            observedRoot,
-            stateDir,
-            contractEnforcementMode,
-            allowLocalTypeEvolution);
-
-        AppendRunDetailLog(historyDir, runId, "contract-check", new Dictionary<string, string>
+        if (ShouldRunRoslynValidation(workingFilePath))
         {
-            ["roslyn_available"] = validation.RoslynAvailable.ToString(),
-            ["candidate_count"] = validation.CandidateCount.ToString(),
-            ["checked_count"] = validation.CheckedCount.ToString(),
-            ["ambiguous_count"] = validation.AmbiguousCount.ToString(),
-            ["overlay_file_count"] = validation.OverlayFileCount.ToString(),
-            ["comment_churn_count"] = validation.CommentChurnCount.ToString(),
-            ["violation_count"] = validation.Violations.Count.ToString()
-        });
+            // Enforce Roslyn semantic/compile validation before snapshot/diff.
+            var validation = ValidateWorkingFileContracts(
+                workingFilePath,
+                relativeSourcePath,
+                observedRoot,
+                stateDir,
+                contractEnforcementMode,
+                allowLocalTypeEvolution);
 
-        if (validation.OverlayFileCount > 0)
-        {
-            Console.WriteLine($"Roslyn overlay: validating with {validation.OverlayFileCount} additional Working .cs file(s).");
-        }
-
-        if (validation.CommentChurnCount >= 12)
-        {
-            Console.WriteLine($"Comment churn warning: {validation.CommentChurnCount} new comment line(s) detected in the current Working file. Keep routine edit history in the ledger/map, not source comments.");
-        }
-
-        if (validation.Violations.Count > 0)
-        {
-            var violationSummary = string.Join(" | ", validation.Violations
-                .Take(20)
-                .Select(v => $"{v.TypeName}.{v.MemberName}@L{v.Line}: {v.Reason}"));
-            AppendRunDetailLog(historyDir, runId, "contract-violations", new Dictionary<string, string>
+            AppendRunDetailLog(historyDir, runId, "contract-check", new Dictionary<string, string>
             {
-                ["violations"] = violationSummary
+                ["roslyn_available"] = validation.RoslynAvailable.ToString(),
+                ["candidate_count"] = validation.CandidateCount.ToString(),
+                ["checked_count"] = validation.CheckedCount.ToString(),
+                ["ambiguous_count"] = validation.AmbiguousCount.ToString(),
+                ["overlay_file_count"] = validation.OverlayFileCount.ToString(),
+                ["comment_churn_count"] = validation.CommentChurnCount.ToString(),
+                ["violation_count"] = validation.Violations.Count.ToString()
             });
-        }
 
-        if (validation.ShouldBlockRun)
-        {
-            const string contractError = "Roslyn validation failed. The edited working file has unresolved or compile-time errors.";
-            Console.Error.WriteLine(contractError);
-            var detailLines = BuildViolationDetailLines(validation.Violations, workingFilePath, maxItems: 40);
-            if (validation.Violations.Count > 40)
+            if (validation.OverlayFileCount > 0)
             {
-                detailLines.Add($"... plus {validation.Violations.Count - 40} more.");
+                Console.WriteLine($"Roslyn overlay: validating with {validation.OverlayFileCount} additional Working .cs file(s).");
             }
 
-            var errorFilePath = SurfaceErrorForHuman(historyDir, runId, contractError, detailLines, showDialog: false);
-            var continueWithCompare = PromptUserToContinueAfterContractFailure(
-                historyDir,
-                runId,
-                "AIMonitor Contract Warning",
-                "Contract validation failed. Continue to compare anyway?",
-                errorFilePath);
-            AppendRunDetailLog(historyDir, runId, "contract-override-decision", new Dictionary<string, string>
+            if (validation.CommentChurnCount >= 12)
             {
-                ["reason"] = "external-contract-validation-failed",
-                ["continue_compare"] = continueWithCompare.ToString()
-            });
-            if (!continueWithCompare)
+                Console.WriteLine($"Comment churn warning: {validation.CommentChurnCount} new comment line(s) detected in the current Working file. Keep routine edit history in the ledger/map, not source comments.");
+            }
+
+            if (validation.Violations.Count > 0)
             {
-                AppendRunDetailLog(historyDir, runId, "run-end", new Dictionary<string, string>
+                var violationSummary = string.Join(" | ", validation.Violations
+                    .Take(20)
+                    .Select(v => $"{v.TypeName}.{v.MemberName}@L{v.Line}: {v.Reason}"));
+                AppendRunDetailLog(historyDir, runId, "contract-violations", new Dictionary<string, string>
                 {
-                    ["status"] = "contract-check-failed",
-                    ["reason"] = "external-contract-validation-failed"
+                    ["violations"] = violationSummary
                 });
-                return (int)AIWorkflowRunnerExitCode.ValidationBlocked;
             }
 
-            Console.WriteLine("User chose to continue compare despite contract validation failures.");
-            Console.WriteLine("WARNING: Contract enforcement was overridden by user decision.");
+            if (validation.ShouldBlockRun)
+            {
+                const string contractError = "Roslyn validation failed. The edited working file has unresolved or compile-time errors.";
+                Console.Error.WriteLine(contractError);
+                var detailLines = BuildViolationDetailLines(validation.Violations, workingFilePath, maxItems: 40);
+                if (validation.Violations.Count > 40)
+                {
+                    detailLines.Add($"... plus {validation.Violations.Count - 40} more.");
+                }
+
+                var errorFilePath = SurfaceErrorForHuman(historyDir, runId, contractError, detailLines, showDialog: false);
+                var continueWithCompare = PromptUserToContinueAfterContractFailure(
+                    historyDir,
+                    runId,
+                    "AIMonitor Contract Warning",
+                    "Contract validation failed. Continue to compare anyway?",
+                    errorFilePath);
+                AppendRunDetailLog(historyDir, runId, "contract-override-decision", new Dictionary<string, string>
+                {
+                    ["reason"] = "external-contract-validation-failed",
+                    ["continue_compare"] = continueWithCompare.ToString()
+                });
+                if (!continueWithCompare)
+                {
+                    AppendRunDetailLog(historyDir, runId, "run-end", new Dictionary<string, string>
+                    {
+                        ["status"] = "contract-check-failed",
+                        ["reason"] = "external-contract-validation-failed"
+                    });
+                    return (int)AIWorkflowRunnerExitCode.ValidationBlocked;
+                }
+
+                Console.WriteLine("User chose to continue compare despite contract validation failures.");
+                Console.WriteLine("WARNING: Contract enforcement was overridden by user decision.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Roslyn validation skipped because this file is not a standalone C# source file.");
+            AppendRunDetailLog(historyDir, runId, "contract-check-skipped", new Dictionary<string, string>
+            {
+                ["reason"] = "not-csharp-source-file",
+                ["working_file"] = workingFilePath
+            });
         }
 
         if (FilesAreIdentical(originalFilePath, workingFilePath))
@@ -486,10 +498,9 @@ internal static partial class AIWorkflowRunner
         var diffTool = settings["DiffTool"];
         if (!string.IsNullOrWhiteSpace(diffTool)
             && !string.Equals(diffTool, "WinMerge", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(diffTool, "BeyondCompare", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(diffTool, "VSCode", StringComparison.OrdinalIgnoreCase))
+            && !string.Equals(diffTool, "BeyondCompare", StringComparison.OrdinalIgnoreCase))
         {
-            Console.Error.WriteLine($"ERROR: Unknown DiffTool '{diffTool}'. Supported values: WinMerge, BeyondCompare, VSCode.");
+            Console.Error.WriteLine($"ERROR: Unknown DiffTool '{diffTool}'. Supported values: WinMerge, BeyondCompare.");
             return false;
         }
 
@@ -552,7 +563,7 @@ internal static partial class AIWorkflowRunner
                 var winMergePath = ResolveWinMergePath();
                 if (winMergePath == null)
                 {
-                    Console.Error.WriteLine("WinMerge not found. Install WinMerge or change DiffTool in appsettings.json to 'BeyondCompare' or 'VSCode'");
+                    Console.Error.WriteLine("WinMerge not found. Install WinMerge or change DiffTool in appsettings.json to 'BeyondCompare'");
                     AppendRunDetailLog(historyDir, runId, "diff-launch-failed", new Dictionary<string, string>
                     {
                         ["reason"] = "winmerge-not-found"
@@ -560,13 +571,11 @@ internal static partial class AIWorkflowRunner
                     return false;
                 }
                 return LaunchWinMerge(winMergePath, originalFilePath, proposedFilePath, historyDir, runId);
-            case "vscode":
-                return LaunchVSCode(originalFilePath, proposedFilePath, historyDir, runId);
             case "beyondcompare":
                 var bcPath = ResolveBeyondComparePath();
                 if (bcPath == null)
                 {
-                    Console.Error.WriteLine("Beyond Compare not found. Install BC5 or change DiffTool in appsettings.json to 'WinMerge' or 'VSCode'");
+                    Console.Error.WriteLine("Beyond Compare not found. Install BC5 or change DiffTool in appsettings.json to 'WinMerge'");
                     AppendRunDetailLog(historyDir, runId, "diff-launch-failed", new Dictionary<string, string>
                     {
                         ["reason"] = "beyondcompare-not-found"
@@ -575,7 +584,7 @@ internal static partial class AIWorkflowRunner
                 }
                 return LaunchBeyondCompare(bcPath, originalFilePath, proposedFilePath, historyDir, runId);
             default:
-                Console.Error.WriteLine($"Unknown DiffTool: {diffToolConfig}. Supported: WinMerge, VSCode, BeyondCompare");
+                Console.Error.WriteLine($"Unknown DiffTool: {diffToolConfig}. Supported: WinMerge, BeyondCompare");
                 AppendRunDetailLog(historyDir, runId, "diff-launch-failed", new Dictionary<string, string>
                 {
                     ["reason"] = "unknown-diff-tool",
@@ -585,36 +594,9 @@ internal static partial class AIWorkflowRunner
         }
     }
 
-    private static bool LaunchVSCode(string originalFilePath, string proposedFilePath, string historyDir, string runId)
+    private static bool ShouldRunRoslynValidation(string filePath)
     {
-        var vscodePath = ResolveVSCodePath();
-        if (string.IsNullOrWhiteSpace(vscodePath))
-        {
-            Console.Error.WriteLine("VS Code not found. Install VS Code or change DiffTool in appsettings.json to 'BeyondCompare'");
-            AppendRunDetailLog(historyDir, runId, "diff-launch-failed", new Dictionary<string, string>
-            {
-                ["reason"] = "vscode-not-found"
-            });
-            return false;
-        }
-
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = vscodePath,
-            UseShellExecute = true
-        };
-        AddArguments(startInfo, "--diff", originalFilePath, proposedFilePath);
-
-        var process = Process.Start(startInfo);
-        Console.WriteLine("VS Code diff viewer launched.");
-        AppendRunDetailLog(historyDir, runId, "diff-launched", new Dictionary<string, string>
-        {
-            ["tool"] = "VSCode",
-            ["tool_path"] = vscodePath,
-            ["arguments"] = FormatArgumentList(startInfo),
-            ["pid"] = process?.Id.ToString() ?? string.Empty
-        });
-        return process is not null;
+        return string.Equals(Path.GetExtension(filePath), ".cs", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool LaunchBeyondCompare(string beyondComparePath, string originalFilePath, string proposedFilePath, string historyDir, string runId)
